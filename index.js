@@ -1,19 +1,19 @@
-var SSR_NODE = 1
-var TEXT_NODE = 3
-var EMPTY_OBJ = {}
-var EMPTY_ARR = []
-var SVG_NS = "http://www.w3.org/2000/svg"
+const SSR_NODE = 1
+const TEXT_NODE = 3
+const EMPTY_OBJ = {}
+const EMPTY_ARR = []
+const SVG_NS = "http://www.w3.org/2000/svg";
 
-var id = (a) => a
-var map = EMPTY_ARR.map
-var isArray = Array.isArray
-var enqueue =
+const id = (a) => a
+const map = EMPTY_ARR.map
+const isArray = Array.isArray
+const enqueue =
   typeof requestAnimationFrame !== "undefined"
     ? requestAnimationFrame
     : setTimeout
 
-var createClass = (obj) => {
-  var out = ""
+const createClass = (obj) => {
+  let out = ""
 
   if (typeof obj === "string") return obj
 
@@ -32,15 +32,15 @@ var createClass = (obj) => {
   return out
 }
 
-var shouldRestart = (a, b) => {
-  for (var k in { ...a, ...b }) {
+const shouldRestart = (a, b) => {
+  for (const k in { ...a, ...b }) {
     if (typeof (isArray(a[k]) ? a[k][0] : a[k]) === "function") {
       b[k] = a[k]
     } else if (a[k] !== b[k]) return true
   }
 }
 
-var patchSubs = (oldSubs, newSubs = EMPTY_ARR, dispatch) => {
+const patchSubs = (oldSubs, newSubs = EMPTY_ARR, dispatch) => {
   for (
     var subs = [], i = 0, oldSub, newSub;
     i < oldSubs.length || i < newSubs.length;
@@ -66,11 +66,11 @@ var patchSubs = (oldSubs, newSubs = EMPTY_ARR, dispatch) => {
   return subs
 }
 
-var getKey = (vdom) => (vdom == null ? vdom : vdom.key)
+const getKey = (vdom) => (vdom == null ? vdom : vdom.key)
 
-var patchProperty = (node, key, oldValue, newValue, listener, isSvg) => {
+const patchProperty = (node, key, oldValue, newValue, listener, isSvg) => {
   if (key === "style") {
-    for (var k in { ...oldValue, ...newValue }) {
+    for (const k in { ...oldValue, ...newValue }) {
       oldValue = newValue == null || newValue[k] == null ? "" : newValue[k]
       if (k[0] === "-") {
         node[key].setProperty(k, oldValue)
@@ -95,20 +95,20 @@ var patchProperty = (node, key, oldValue, newValue, listener, isSvg) => {
   }
 }
 
-var createNode = (vdom, listener, isSvg) => {
-  var props = vdom.props
-  var node =
+const createNode = (vdom, listener, isSvg) => {
+  const props = vdom.props
+  const node =
     vdom.type === TEXT_NODE
       ? document.createTextNode(vdom.tag)
       : (isSvg = isSvg || vdom.tag === "svg")
       ? document.createElementNS(SVG_NS, vdom.tag, props.is && props)
       : document.createElement(vdom.tag, props.is && props)
 
-  for (var k in props) {
+  for (const k in props) {
     patchProperty(node, k, null, props[k], listener, isSvg)
   }
 
-  for (var i = 0; i < vdom.children.length; i++) {
+  for (let i = 0; i < vdom.children.length; i++) {
     node.appendChild(
       createNode(
         (vdom.children[i] = maybeVNode(vdom.children[i])),
@@ -121,7 +121,7 @@ var createNode = (vdom, listener, isSvg) => {
   return (vdom.node = node)
 }
 
-var patch = (parent, node, oldVNode, newVNode, listener, isSvg) => {
+const patch = (parent, node, oldVNode, newVNode, listener, isSvg) => {
   if (oldVNode === newVNode) {
   } else if (
     oldVNode != null &&
@@ -138,22 +138,22 @@ var patch = (parent, node, oldVNode, newVNode, listener, isSvg) => {
       parent.removeChild(oldVNode.node)
     }
   } else {
-    var tmpVKid
-    var oldVKid
+    let tmpVKid
+    let oldVKid
 
-    var oldKey
-    var newKey
+    let oldKey
+    let newKey
 
-    var oldProps = oldVNode.props
-    var newProps = newVNode.props
+    const oldProps = oldVNode.props
+    const newProps = newVNode.props
 
-    var oldVKids = oldVNode.children
-    var newVKids = newVNode.children
+    const oldVKids = oldVNode.children
+    const newVKids = newVNode.children
 
-    var oldHead = 0
-    var newHead = 0
-    var oldTail = oldVKids.length - 1
-    var newTail = newVKids.length - 1
+    let oldHead = 0
+    let newHead = 0
+    let oldTail = oldVKids.length - 1
+    let newTail = newVKids.length - 1
 
     isSvg = isSvg || newVNode.tag === "svg"
 
@@ -316,7 +316,7 @@ var patch = (parent, node, oldVNode, newVNode, listener, isSvg) => {
   return (newVNode.node = node)
 }
 
-var propsChanged = (a, b) => {
+const propsChanged = (a, b) => {
   for (var k in a) if (a[k] !== b[k]) return true
   for (var k in b) if (a[k] !== b[k]) return true
 }
@@ -332,7 +332,7 @@ var maybeVNode = (newVNode, oldVNode) =>
       : newVNode
     : text("")
 
-var recycleNode = (node) =>
+const recycleNode = (node) =>
   node.nodeType === TEXT_NODE
     ? text(node.nodeValue, node)
     : createVNode(
@@ -352,31 +352,31 @@ var createVNode = (tag, { key, ...props }, children, type, node) => ({
   node,
 })
 
-export var memo = (tag, memo) => ({ tag, memo })
+export const memo = (tag, memo) => ({ tag, memo })
 
 export var text = (value, node) =>
   createVNode(value, EMPTY_OBJ, EMPTY_ARR, TEXT_NODE, node)
 
-export var h = (tag, { class: c, ...props }, children = EMPTY_ARR) =>
+export const h = (tag, { class: c, ...props }, children = EMPTY_ARR) =>
   createVNode(
     tag,
     { ...props, ...(c ? { class: createClass(c) } : EMPTY_OBJ) },
     isArray(children) ? children : [children]
   )
 
-export var app = ({
+export const app = ({
   node,
   view,
   subscriptions,
   dispatch = id,
   init = EMPTY_OBJ,
 }) => {
-  var vdom = node && recycleNode(node)
-  var subs = []
-  var state
-  var busy
+  let vdom = node && recycleNode(node);
+  let subs = []
+  let state
+  let busy
 
-  var update = (newState) => {
+  const update = (newState) => {
     if (state !== newState) {
       if ((state = newState) == null) dispatch = subscriptions = render = id
       if (subscriptions) subs = patchSubs(subs, subscriptions(state), dispatch)
